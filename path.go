@@ -3,7 +3,6 @@ package hexagon
 // HexPath creates a path of 1 step grid coords, starting with A and ending with B
 // HexPath uses HexPathSteps to calculate the least steps to take, and
 // then uses StepSplit to interweave the steps as evenly as possible
-
 func (c1 Coord) PathTo(c2 Coord) []Coord {
 	d := c1.StepsTo(c2)
 	if d == 0 {
@@ -11,89 +10,66 @@ func (c1 Coord) PathTo(c2 Coord) []Coord {
 	} else if d == 1 {
 		return []Coord{c1, c2}
 	}
-	steps := PathSteps(c1, c2) // num steps HEXDIR 0, 1, 2
-	var numLarge, numSmall int
-	var sModX, sModY, lModX, lModY int
-	if Abs(steps[0]) >= Abs(steps[1]) && Abs(steps[0]) >= Abs(steps[2]) {
-		numLarge = Abs(steps[0])
-		lModX, lModY = Dir(steps[0]), 0
-		if steps[1] == 0 {
-			numSmall = Abs(steps[2])
-			sModX, sModY = Dir(steps[2]), Dir(steps[2])
-		} else {
-			numSmall = Abs(steps[1])
-			sModX, sModY = 0, Dir(steps[1])
-		}
-	} else if Abs(steps[1]) >= Abs(steps[2]) {
-		numLarge = Abs(steps[1])
-		lModX, lModY = 0, Dir(steps[1])
-		if steps[0] == 0 {
-			numSmall = Abs(steps[2])
-			sModX, sModY = Dir(steps[2]), Dir(steps[2])
-		} else {
-			numSmall = Abs(steps[0])
-			sModX, sModY = Dir(steps[0]), 0
-		}
-	} else {
-		numLarge = Abs(steps[2])
-		lModX, lModY = Dir(steps[2]), Dir(steps[2])
-		if steps[0] == 0 {
-			numSmall = Abs(steps[1])
-			sModX, sModY = 0, Dir(steps[1])
-		} else {
-			numSmall = Abs(steps[0])
-			sModX, sModY = Dir(steps[0]), 0
-		}
-	}
-	useSmall := StepSplit(numLarge, numSmall)
+	stepsN, stepD := PathSteps(c1, c2) // num steps HEXDIR 0, 1, 2
 	path := []Coord{c1}
+	if len(stepsN) == 1 {
+		for i := 1; i <= d; i++ {
+			path = append(path, c1.Add(stepD[0].Scale(i)))
+		}
+		return path
+	}
+	var useSmall []bool
+	var firstLarge bool
+	if stepsN[0] > stepsN[1] {
+		useSmall = StepSplit(stepsN[0], stepsN[1])
+		firstLarge = true
+	} else {
+		useSmall = StepSplit(stepsN[1], stepsN[0])
+	}
 	stepper := c1
 	for count := 0; count < d; count++ {
-		var modX, modY int
-		if useSmall[count] {
-			modX, modY = sModX, sModY
+		if (firstLarge && useSmall[count]) || (!firstLarge && !useSmall[count]) {
+			stepper = stepper.Add(stepD[1])
 		} else {
-			modX, modY = lModX, lModY
+			stepper = stepper.Add(stepD[0])
 		}
-		stepper = stepper.Add(Coord{modX, modY})
 		path = append(path, stepper)
 	}
 	return path
 }
 
 // PathSteps calculates the minimum steps from a to b
-// PathSteps returns a [3]int with the count of:
-// StepsRight(0,1) StepsUp(1,0) StepsUpRight(1,1)
-// with negative numbers for backward steps
-func PathSteps(a, b Coord) (steps [3]int) {
-	//steps right up upRight
-	x := b[0] - a[0]
-	y := b[1] - a[1]
-	if x == 0 {
-		steps[1] = y
-	} else if y == 0 {
-		steps[0] = x
-	} else if x < 0 && y < 0 {
-		if x < y {
-			steps[2] = y
-			steps[0] = x - y
-		} else {
-			steps[2] = x
-			steps[1] = y - x
-		}
-	} else if x > 0 && y > 0 {
-		if x > y {
-			steps[2] = y
-			steps[0] = x - y
-		} else {
-			steps[2] = x
-			steps[1] = y - x
-		}
-	} else {
-		steps[0] = x
-		steps[1] = y
+func PathSteps(a, b Coord) (num []int, dir []Coord) {
+	if a == b {
+		return nil, nil
 	}
-	return
+	adjB := b.Subtract(a)
+	if axis := adjB.Axis(); axis != -1 {
+		d := a.StepsTo(b)
+		return []int{d}, []Coord{HEXDIRS[axis]}
+	}
+	sector := adjB.Sector()
+	dir = []Coord{HEXDIRS[sector-1], HEXDIRS[sector%6]}
+	switch sector {
+	/*0: Coord{1, 0},
+	1: Coord{0, 1},
+	2: Coord{-1, 1},
+	3: Coord{-1, 0},
+	4: Coord{0, -1},
+	5: Coord{1, -1},*/
+	case 1:
+		return []int{adjB[0], adjB[1]}, dir
+	case 2:
+		return []int{adjB[1] + adjB[0], -adjB[0]}, dir
+	case 3:
+		return []int{adjB[1], -(adjB[0] + adjB[1])}, dir
+	case 4:
+		return []int{-adjB[0], -adjB[1]}, dir
+	case 5:
+		return []int{-(adjB[1] + adjB[0]), adjB[0]}, dir
+	default:
+		return []int{-adjB[1], adjB[0] + adjB[1]}, dir
+	}
 }
 
 // StepSplit figures out how best to weave two types of steps

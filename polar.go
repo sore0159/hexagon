@@ -27,7 +27,6 @@ func (p Polar) Coord() Coord {
 	extra := theta % radius
 	// Go out along the axis to the start of your leg
 	extend := HEXDIRS[leg]
-	extend = [2]int{extend[0] * radius, extend[1] * radius}
 	extend = extend.Scale(radius)
 	// Go along the leg the appropriate distance
 	legDir := HEXDIRS[(leg+2)%6]

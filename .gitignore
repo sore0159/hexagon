@@ -1,0 +1,8 @@
+*swp
+*logs.txt
+*gob
+*png
+*ttf
+STATIC/img/
+DATA*
+SECRET*
