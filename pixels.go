@@ -56,6 +56,12 @@ type Viewport struct {
 	LRCorner  Pixel
 }
 
+// MakeViewport sets up the geometry of a viewport.
+// The default CenterHex is {0,0} and the default
+// CenterPix is {0,0}.  Adjust these manually after
+// creation.
+// Adjusting flattop, isometric, and Frame
+// after creation should be done through their setters
 func MakeViewport(r float64, flattop bool, isometric bool) *Viewport {
 	h := r * math.Sqrt(3)
 	w := 2 * r

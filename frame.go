@@ -4,6 +4,9 @@ package hexagon
 // It safechecks that upperLeft and lowerRight
 // are geometrically sound, and does nothing if
 // they are not
+// Note that the frame does _not_ need to include
+// the CenterPix: CenterPix is only used for
+// hex/pixel translation.
 func (v *Viewport) SetFrame(upperLeft, lowerRight Pixel) {
 	if upperLeft[0] < lowerRight[0] && upperLeft[1] < lowerRight[1] {
 		v.ULCorner = upperLeft
