@@ -6,16 +6,16 @@ import (
 )
 
 /*
-            ____
-           /\  /\
-	  ____/__\/__\        |\
-	 /\  /\  /\  /    r/2 | \  r
-	/__\/__\/__\/     *3^ |  \
-    \  /\  /          1/2 |   \
-     \/__\/               |____\
-                            r/2
-	h = r*sqrt(3)
-	w = 2r
+           ____
+          /\  /\
+     ____/__\/__\        |\
+    /\  /\  /\  /    r/2 | \  r
+   /__\/__\/__\/     *3^ |  \
+   \  /\  /          1/2 |   \
+    \/__\/               |____\
+                           r/2
+   h = r*sqrt(3)
+   w = 2r
 */
 
 type Pixel [2]float64
@@ -78,11 +78,6 @@ func MakeViewport(r float64, flattop bool, isometric bool) *Viewport {
 func (v *Viewport) Anchor(c Coord, p Pixel) {
 	v.CenterHex = c
 	v.CenterPix = p
-}
-
-func (v *Viewport) SetFrame(upperLeft, lowerRight Pixel) {
-	v.ULCorner = upperLeft
-	v.LRCorner = lowerRight
 }
 
 func (v *Viewport) SetRadius(r float64) {
@@ -226,8 +221,8 @@ func (v *Viewport) HexContaining(p Pixel) Coord {
 }
 
 func (v *Viewport) flatHexContaining(p Pixel) (c Coord) {
-	//		 __
-	//		| \|  width =  1.5*r
+	//       __
+	//      | \|  width =  1.5*r
 	//box = |_/|  height = r*sqrt(3)
 	// upper left corner:  centerPix[0] - .5r, centerPix[1] + h/2
 	r := v.HexW * .5

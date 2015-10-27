@@ -70,35 +70,40 @@ func DrawGrid(v *Viewport, fileName string) {
 			}*/
 		}
 	}
-	for x := -5; x < 5; x++ {
-		for y := -5; y < 5; y++ {
-			//for x := 0; x < 2; x++ {
-			//for y := 0; y < 2; y++ {
-			h := v.CenterHex.Add(Coord{x, y})
-			corners := v.CornersOf(h)
-			gc.MoveTo(corners[0][0], corners[0][1])
-			for i, _ := range corners {
-				var px, py float64
-				if i == 5 {
-					px, py = corners[0][0], corners[0][1]
-				} else {
-					px, py = corners[i+1][0], corners[i+1][1]
-				}
-				gc.LineTo(px, py)
+	for _, h := range v.VisList() {
+		corners := v.CornersOf(h)
+		gc.MoveTo(corners[0][0], corners[0][1])
+		for i, _ := range corners {
+			var px, py float64
+			if i == 5 {
+				px, py = corners[0][0], corners[0][1]
+			} else {
+				px, py = corners[i+1][0], corners[i+1][1]
 			}
-			gc.Close()
-			gc.Stroke()
-			c := v.CenterOf(h)
-			gc.FillStringAt(fmt.Sprintf("(%d,%d)", h[0], h[1]), c[0], c[1])
+			gc.LineTo(px, py)
 		}
+		gc.Close()
+		gc.Stroke()
+		c := v.CenterOf(h)
+		gc.FillStringAt(fmt.Sprintf("(%d,%d)", h[0], h[1]), c[0], c[1])
 	}
+	gc.SetLineWidth(2)
+	gc.MoveTo(v.ULCorner[0], v.ULCorner[1])
+	gc.LineTo(v.LRCorner[0], v.ULCorner[1])
+	gc.LineTo(v.LRCorner[0], v.LRCorner[1])
+	gc.LineTo(v.ULCorner[0], v.LRCorner[1])
+	gc.Close()
+	gc.Stroke()
+
+	//}
 
 	draw2dimg.SaveToPngFile(fileName, dest)
 }
 
 func GetVP() *Viewport {
-	v := MakeViewport(10.0, false, false)
-	v.CenterPix = Pixel{100, 200}
+	v := MakeViewport(30.0, false, false)
+	v.CenterPix = Pixel{200, 200}
 	v.CenterHex = Coord{1, 5}
+	v.SetFrame(Pixel{115, 85}, Pixel{305, 315})
 	return v
 }
