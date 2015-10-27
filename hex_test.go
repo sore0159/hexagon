@@ -92,7 +92,7 @@ func TestLotsPath(t *testing.T) {
 }
 
 func xTestPixels(t *testing.T) {
-	v := MakeViewport(20.0)
+	v := GetVP()
 	v.CenterPix = Pixel{200, 200}
 	for i := 0; i < 10; i++ {
 		x := rand.Float64() * 200
@@ -106,8 +106,7 @@ func xTestPixels(t *testing.T) {
 
 func TestPixel(t *testing.T) {
 	fmt.Println("-------------------------")
-	v := MakeViewport(20.0)
-	v.CenterPix = Pixel{200, 200}
+	v := GetVP()
 	p := Pixel{215, 390}
 	hex := v.HexContaining(p)
 	pt := v.CenterOf(hex)
@@ -117,6 +116,21 @@ func TestPixel(t *testing.T) {
 	hex = v.HexContaining(p)
 	pt = v.CenterOf(hex)
 	fmt.Println("Pixel", p, "is in hex", hex, "with center", pt[0], pt[1])
+}
+
+func TestFlipPixel(t *testing.T) {
+	fmt.Println("-------------------------")
+	v := GetVP()
+	v.SetFlattop(false)
+	p := Pixel{200, 200}
+	hex := v.HexContaining(p)
+	pt := v.CenterOf(hex)
+	fmt.Println("\nPixel", p, "is in flip hex", hex, "with flip center", pt[0], pt[1])
+	fmt.Println("-------------------------")
+	p = Pixel{215, 410}
+	hex = v.HexContaining(p)
+	pt = v.CenterOf(hex)
+	fmt.Println("\nPixel", p, "is in flip hex", hex, "with flip center", pt[0], pt[1])
 }
 
 func GenTest() (a, b Coord) {
