@@ -1,7 +1,8 @@
 package hexagon
 
-// HexPath creates a path of 1 step grid coords, starting with A and ending with B
-// HexPath uses HexPathSteps to calculate the least steps to take, and
+// PathTo creates a path of hexagons starting with the
+// caller and ending with the argument.
+// PathTo uses PathSteps to calculate the steps to take, and
 // then uses StepSplit to interweave the steps as evenly as possible
 func (c1 Coord) PathTo(c2 Coord) []Coord {
 	d := c1.StepsTo(c2)
@@ -78,7 +79,6 @@ func PathSteps(a, b Coord) (num []int, dir []Coord) {
 // It returns a bool slice to use for determining which type to
 // use in a sequence
 func StepSplit(larger, smaller int) (useSmall []bool) {
-	//fmt.Println("Got L,S:", larger, smaller)
 	useSmall = make([]bool, larger+smaller)
 	if smaller <= 0 {
 		return
@@ -99,7 +99,6 @@ func StepSplit(larger, smaller int) (useSmall []bool) {
 	// l-b = sum - (< sum)
 	// left > beat
 	midbeat := len(beats) / 2
-	//fmt.Println("Beat:", beat, "beats:", beats, "midbeat:", midbeat)
 	for i := 0; left > (beat - 1); left-- {
 		boost := midbeat + i
 		if i <= 0 {
@@ -114,7 +113,6 @@ func StepSplit(larger, smaller int) (useSmall []bool) {
 			}
 		}
 	}
-	//fmt.Println("beats:", beats)
 	for i, _ := range useSmall {
 		if len(beats) > 0 && i == beats[0] {
 			useSmall[i] = true
@@ -125,29 +123,5 @@ func StepSplit(larger, smaller int) (useSmall []bool) {
 			}
 		}
 	}
-	//fmt.Println("Giving:", useSmall)
-	/*var sm, lr int
-	for _, val := range useSmall {
-		if val {
-			sm++
-		} else {
-			lr++
-		}
-	}
-	fmt.Println("Sums:L,S:", lr, sm)
-	*/
-	/*path := []int{0}
-	dir := 1
-	for i, val := range useSmall {
-		path[len(path)-1] += dir
-		if i < len(useSmall)-1 {
-			if useSmall[i+1] != val {
-				path = append(path, 0)
-				dir *= -1
-			}
-		}
-	}
-	fmt.Println("Switches:", path)
-	*/
 	return
 }

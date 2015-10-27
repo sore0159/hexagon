@@ -11,7 +11,6 @@ package hexagon
                0,-1
 		S4			  S5
 circumfremnce = radius*6 (1 for r = 0)
-area =
 */
 var HEXDIRS = map[int]Coord{
 	0: Coord{1, 0},
