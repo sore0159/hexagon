@@ -1,17 +1,30 @@
 package hexagon
 
+import "log"
+
 // SetFrame sets the boundaries for VisList()
-// It safechecks that upperLeft and lowerRight
-// are geometrically sound, and does nothing if
-// they are not
+// If the given values are not geometrically
+// sound it flip them as needed.
 // Note that the frame does _not_ need to include
 // the CenterPix: CenterPix is only used for
 // hex/pixel translation.
-func (v *Viewport) SetFrame(upperLeft, lowerRight Pixel) {
-	if upperLeft[0] < lowerRight[0] && upperLeft[1] < lowerRight[1] {
-		v.ULCorner = upperLeft
-		v.LRCorner = lowerRight
+func (v *Viewport) SetFrame(x1, y1, x2, y2 float64) {
+	log.Println("V:", v.ULCorner, v.LRCorner, x1, y1, x2, y2)
+	if x1 < x2 {
+		v.ULCorner[0] = x1
+		v.LRCorner[0] = x2
+	} else {
+		v.ULCorner[0] = x2
+		v.LRCorner[0] = x1
 	}
+	if y1 < y2 {
+		v.ULCorner[1] = y1
+		v.LRCorner[1] = y2
+	} else {
+		v.ULCorner[1] = y2
+		v.LRCorner[1] = y1
+	}
+	log.Println("V2:", v.ULCorner, v.LRCorner)
 }
 
 // VisList returns a list of all Coords within

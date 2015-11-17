@@ -37,6 +37,7 @@ func TestThirdPIC(t *testing.T) {
 }
 
 func DrawGrid(v *Viewport, fileName string) {
+	log.Println("DRAWING GRID FOR", v.ULCorner, v.LRCorner)
 	draw2d.SetFontFolder("")
 	dest := image.NewRGBA(image.Rect(0, 0, 400, 400))
 	white := color.RGBA{0xff, 0xff, 0xff, 255}
@@ -102,8 +103,7 @@ func DrawGrid(v *Viewport, fileName string) {
 
 func GetVP() *Viewport {
 	v := MakeViewport(30.0, false, false)
-	v.CenterPix = Pixel{200, 200}
-	v.CenterHex = Coord{1, 5}
-	v.SetFrame(Pixel{115, 85}, Pixel{305, 315})
+	v.SetAnchor(5, 5, 200.0, 200.0)
+	v.SetFrame(110, 110, 290, 290)
 	return v
 }
