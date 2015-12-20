@@ -29,5 +29,5 @@ func (c *Coord) Scan(value interface{}) error {
 
 // Value impliments Valuer for SQL queries
 func (c Coord) Value() (driver.Value, error) {
-	return fmt.Sprintf("(%d,%d)", c[0], c[1]), nil
+	return fmt.Sprintf("POINT(%d,%d)", c[0], c[1]), nil
 }
