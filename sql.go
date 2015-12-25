@@ -31,3 +31,55 @@ func (c *Coord) Scan(value interface{}) error {
 func (c Coord) Value() (driver.Value, error) {
 	return fmt.Sprintf("POINT(%d,%d)", c[0], c[1]), nil
 }
+
+func CoordList2Sql(list []Coord) string {
+	if len(list) == 0 {
+		return "ARRAY[]::point[]"
+	}
+	listStr := "ARRAY["
+	parts := make([]string, len(list))
+	for i, c := range list {
+		parts[i] = fmt.Sprintf("POINT(%d, %d)", c[0], c[1])
+	}
+	listStr += strings.Join(parts, ", ") + "]"
+	return listStr
+}
+
+func Sql2CoordList(bytes []byte) (list []Coord, ok bool) {
+	listStr := string(bytes)
+	if listStr == "{}" {
+		return []Coord{}, true
+	}
+	parts := strings.Split(listStr, ",")
+	if len(parts)%2 != 0 {
+		return nil, false
+	}
+	var odd bool
+	var x, y int
+	list = []Coord{}
+	for _, part := range parts {
+		var err error
+		if odd {
+			subParts := strings.Split(part, ")")
+			if len(subParts) != 2 {
+				return nil, false
+			}
+			y, err = strconv.Atoi(subParts[0])
+			if err != nil {
+				return nil, false
+			}
+			list = append(list, Coord{x, y})
+		} else {
+			subParts := strings.Split(part, "(")
+			if len(subParts) != 2 {
+				return nil, false
+			}
+			x, err = strconv.Atoi(subParts[1])
+			if err != nil {
+				return nil, false
+			}
+		}
+		odd = !odd
+	}
+	return list, true
+}
