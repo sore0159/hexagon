@@ -1,6 +1,6 @@
 package hexagon
 
-import "log"
+//import "log"
 
 // SetFrame sets the boundaries for VisList()
 // If the given values are not geometrically
@@ -9,7 +9,7 @@ import "log"
 // the CenterPix: CenterPix is only used for
 // hex/pixel translation.
 func (v *Viewport) SetFrame(x1, y1, x2, y2 float64) {
-	log.Println("V:", v.ULCorner, v.LRCorner, x1, y1, x2, y2)
+	//log.Println("V:", v.ULCorner, v.LRCorner, x1, y1, x2, y2)
 	if x1 < x2 {
 		v.ULCorner[0] = x1
 		v.LRCorner[0] = x2
@@ -24,7 +24,7 @@ func (v *Viewport) SetFrame(x1, y1, x2, y2 float64) {
 		v.ULCorner[1] = y2
 		v.LRCorner[1] = y1
 	}
-	log.Println("V2:", v.ULCorner, v.LRCorner)
+	//log.Println("V2:", v.ULCorner, v.LRCorner)
 }
 
 // VisList returns a list of all Coords within
