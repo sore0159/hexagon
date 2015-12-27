@@ -32,6 +32,10 @@ func (c Coord) Value() (driver.Value, error) {
 	return fmt.Sprintf("POINT(%d,%d)", c[0], c[1]), nil
 }
 
+func (c Coord) SQLStr() string {
+	return fmt.Sprintf("POINT(%d,%d)", c[0], c[1])
+}
+
 func CoordList2Sql(list []Coord) string {
 	if len(list) == 0 {
 		return "ARRAY[]::point[]"
