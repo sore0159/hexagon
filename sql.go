@@ -17,6 +17,19 @@ func NewNullCoord() *NullCoord {
 	return &NullCoord{}
 }
 
+func (nc NullCoord) IsCoord(c Coord) bool {
+	return nc.Valid && nc.Coord == c
+}
+func (nc NullCoord) Eq(nc2 NullCoord) bool {
+	return nc.Valid && nc2.Valid && nc.Coord == nc2.Coord
+}
+func (nc NullCoord) SQLStr() string {
+	if nc.Valid {
+		return nc.Coord.SQLStr()
+	}
+	return "NULL"
+}
+
 func (nc *NullCoord) Value() (driver.Value, error) {
 	if !nc.Valid {
 		return nil, nil
