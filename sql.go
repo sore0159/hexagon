@@ -8,13 +8,43 @@ import (
 	"strings"
 )
 
+type NullCoord struct {
+	Coord Coord
+	Valid bool
+}
+
+func NewNullCoord() *NullCoord {
+	return &NullCoord{}
+}
+
+func (nc *NullCoord) Value() (driver.Value, error) {
+	if !nc.Valid {
+		return nil, nil
+	}
+	return nc.Coord.Value()
+}
+func (nc *NullCoord) Scan(value interface{}) error {
+	if value == nil {
+		nc.Valid, nc.Coord = false, Coord{0, 0}
+		return nil
+	}
+	nc.Valid = true
+	return nc.Coord.Scan(value)
+}
+
 // Scan impliments Scanner for use in SQL queries
 func (c *Coord) Scan(value interface{}) error {
+	if value == nil {
+		return errors.New("Bad value scanned to hexagon coord: NULL")
+	}
 	bytes, ok := value.([]byte)
 	if !ok {
 		return errors.New(fmt.Sprint("Bad value scanned to hexagon coord:", value))
 	}
 	parts := strings.Split(string(bytes), ",")
+	if len(parts) < 2 || len(parts[0]) < 2 || len(parts[1]) < 2 {
+		return errors.New(fmt.Sprint("bad hexagon coord scan value:", parts, "TOO SHORT"))
+	}
 	x, err := strconv.Atoi(parts[0][1:])
 	if err != nil {
 		return errors.New(fmt.Sprint("bad hexagon coord scan value:", parts, err))
