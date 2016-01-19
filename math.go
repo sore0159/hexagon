@@ -14,3 +14,12 @@ func Dir(x int) int {
 		return 1
 	}
 }
+
+func HexArea(rad int) int {
+	if rad < 0 {
+		return 0
+	} else if rad == 0 {
+		return 1
+	}
+	return 1 + 3*(rad*(rad+1))
+}
