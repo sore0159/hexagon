@@ -23,14 +23,8 @@ func (nc NullCoord) IsCoord(c Coord) bool {
 func (nc NullCoord) Eq(nc2 NullCoord) bool {
 	return nc.Valid && nc2.Valid && nc.Coord == nc2.Coord
 }
-func (nc NullCoord) SQLStr() string {
-	if nc.Valid {
-		return nc.Coord.SQLStr()
-	}
-	return "NULL"
-}
 
-func (nc *NullCoord) Value() (driver.Value, error) {
+func (nc NullCoord) Value() (driver.Value, error) {
 	if !nc.Valid {
 		return nil, nil
 	}
@@ -72,61 +66,46 @@ func (c *Coord) Scan(value interface{}) error {
 
 // Value impliments Valuer for SQL queries
 func (c Coord) Value() (driver.Value, error) {
-	return fmt.Sprintf("POINT(%d,%d)", c[0], c[1]), nil
+	return fmt.Sprintf("(%d,%d)", c[0], c[1]), nil
 }
 
-func (c Coord) SQLStr() string {
-	return fmt.Sprintf("POINT(%d,%d)", c[0], c[1])
+type CoordList []Coord
+
+func (cl CoordList) Value() (driver.Value, error) {
+	if len(cl) == 0 {
+		return "{}", nil
+	}
+	parts := make([]string, len(cl))
+	for i, c := range cl {
+		parts[i] = fmt.Sprintf("\"(%d,%d)\"", c[0], c[1])
+	}
+	str := fmt.Sprintf("{%s}", strings.Join(parts, ", "))
+	return str, nil
 }
 
-func CoordList2Sql(list []Coord) string {
-	if len(list) == 0 {
-		return "ARRAY[]::point[]"
+func (cl *CoordList) Scan(src interface{}) error {
+	if src == nil {
+		return errors.New("Bad value scanned to hexagon coordlist: NULL")
 	}
-	listStr := "ARRAY["
-	parts := make([]string, len(list))
-	for i, c := range list {
-		parts[i] = fmt.Sprintf("POINT(%d, %d)", c[0], c[1])
+	bytes, ok := src.([]byte)
+	if !ok {
+		return fmt.Errorf("Bad value scanned to hexagon coordlist: %v", src)
 	}
-	listStr += strings.Join(parts, ", ") + "]"
-	return listStr
-}
-
-func Sql2CoordList(bytes []byte) (list []Coord, ok bool) {
-	listStr := string(bytes)
-	if listStr == "{}" {
-		return []Coord{}, true
+	str := string(bytes)
+	if str == "{}" {
+		*cl = []Coord{}
+		return nil
 	}
-	parts := strings.Split(listStr, ",")
-	if len(parts)%2 != 0 {
-		return nil, false
-	}
-	var odd bool
-	var x, y int
-	list = []Coord{}
-	for _, part := range parts {
-		var err error
-		if odd {
-			subParts := strings.Split(part, ")")
-			if len(subParts) != 2 {
-				return nil, false
-			}
-			y, err = strconv.Atoi(subParts[0])
-			if err != nil {
-				return nil, false
-			}
-			list = append(list, Coord{x, y})
-		} else {
-			subParts := strings.Split(part, "(")
-			if len(subParts) != 2 {
-				return nil, false
-			}
-			x, err = strconv.Atoi(subParts[1])
-			if err != nil {
-				return nil, false
-			}
+	//str = strings.Trim(str, "{}")
+	parts := strings.Split(str, "(")[1:]
+	list := make([]Coord, len(parts))
+	for i, part := range parts {
+		pt2 := strings.Split(part, ")")[0]
+		err := (&(list[i])).Scan([]byte(fmt.Sprintf("(%s)", pt2)))
+		if err != nil {
+			return err
 		}
-		odd = !odd
 	}
-	return list, true
+	*cl = list
+	return nil
 }
