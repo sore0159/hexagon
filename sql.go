@@ -9,8 +9,8 @@ import (
 )
 
 type NullCoord struct {
-	Coord Coord
-	Valid bool
+	Coord Coord `json:"coord"`
+	Valid bool  `json:"valid"`
 }
 
 func NewNullCoord() *NullCoord {
